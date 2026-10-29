@@ -1,3 +1,4 @@
+/* tizentube-custom: upstream @foxreis/tizentube 1.15.2 */
 // Runs BEFORE the upstream bundle, because upstream reads its config from localStorage once at load.
 // Sets personal defaults only for keys that were never stored, so the TizenTube settings screen still wins.
 (function () {

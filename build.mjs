@@ -5,14 +5,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const UPSTREAM_URL = 'https://cdn.jsdelivr.net/npm/@foxreis/tizentube/dist/userScript.js';
+// Resolve the latest version first and fetch it pinned, so the bundle always says which upstream it holds.
+const registry = await fetch('https://registry.npmjs.org/@foxreis/tizentube/latest');
+if (!registry.ok) throw new Error(`npm registry lookup failed: ${registry.status}`);
+const upstreamVersion = (await registry.json()).version;
 
-const res = await fetch(UPSTREAM_URL);
+const res = await fetch(`https://cdn.jsdelivr.net/npm/@foxreis/tizentube@${upstreamVersion}/dist/userScript.js`);
 if (!res.ok) throw new Error(`Upstream fetch failed: ${res.status}`);
 const upstream = await res.text();
 const prelude = fs.readFileSync(path.join(here, 'prelude.js'), 'utf8');
 const custom = fs.readFileSync(path.join(here, 'feedDedupe.js'), 'utf8');
 
 fs.mkdirSync(path.join(here, 'dist'), { recursive: true });
-fs.writeFileSync(path.join(here, 'dist', 'userScript.js'), `${prelude}\n;\n${upstream}\n;\n${custom}`);
-console.log(`dist/userScript.js: prelude ${prelude.length} + upstream ${upstream.length} + custom ${custom.length} bytes`);
+fs.writeFileSync(path.join(here, 'dist', 'userScript.js'), `/* tizentube-custom: upstream @foxreis/tizentube ${upstreamVersion} */\n${prelude}\n;\n${upstream}\n;\n${custom}`);
+console.log(`dist/userScript.js: upstream ${upstreamVersion}, prelude ${prelude.length} + upstream ${upstream.length} + custom ${custom.length} bytes`);
