@@ -24,7 +24,7 @@
 
   // Counters for checking on the TV that the item shapes really carry video ids.
   var stats = (window.__feedDedupeStats = { items: 0, withId: 0, removed: 0, responses: 0 });
-  if (setting('feedDedupeDebug', true)) console.error('[feedDedupe] loaded');
+  if (setting('feedDedupeDebug', false)) console.error('[feedDedupe] loaded');
 
   // Debug badge, bottom left. CSSOM setters and textContent only: the TV page blocks inline style
   // attributes and innerHTML (CSP, Trusted Types).
@@ -136,7 +136,7 @@
     if (homeSections || navSections || search || continuation) {
       stats.responses++;
       // console.error because the Cobalt log on the Shield only reliably shows error level
-      if (setting('feedDedupeDebug', true)) {
+      if (setting('feedDedupeDebug', false)) {
         var summary = 'dedupe: ' + stats.responses + ' feeds, ' + stats.items + ' items, ' + stats.withId + ' with id, ' + (stats.removed + removed) + ' removed';
         console.error('[feedDedupe] ' + summary);
         showBadge(summary);
