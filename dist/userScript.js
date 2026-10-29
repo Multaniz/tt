@@ -29,6 +29,7 @@ var e,t,i="function"==typeof Symbol?Symbol:{},n=i.iterator||"@@iterator",a=i.toS
 
   // Counters for checking on the TV that the item shapes really carry video ids.
   var stats = (window.__feedDedupeStats = { items: 0, withId: 0, removed: 0, responses: 0 });
+  if (setting('feedDedupeDebug', true)) console.error('[feedDedupe] loaded');
 
   // Only plain videos are deduplicated. Channels, playlists and Shorts have no stable id here.
   function videoId(item) {
@@ -114,7 +115,13 @@ var e,t,i="function"==typeof Symbol?Symbol:{},n=i.iterator||"@@iterator",a=i.toS
       removed += dedupeSections(continuation, pageSeen, minShelfItems);
     }
 
-    if (homeSections || navSections || search || continuation) stats.responses++;
+    if (homeSections || navSections || search || continuation) {
+      stats.responses++;
+      // console.error because the Cobalt log on the Shield only reliably shows error level
+      if (setting('feedDedupeDebug', true)) {
+        console.error('[feedDedupe] response ' + stats.responses + ' items=' + stats.items + ' withId=' + stats.withId + ' removedTotal=' + (stats.removed + removed));
+      }
+    }
     if (removed > 0) {
       stats.removed += removed;
       window.__feedDedupe = stats.removed;
