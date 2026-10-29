@@ -31,6 +31,29 @@ var e,t,i="function"==typeof Symbol?Symbol:{},n=i.iterator||"@@iterator",a=i.toS
   var stats = (window.__feedDedupeStats = { items: 0, withId: 0, removed: 0, responses: 0 });
   if (setting('feedDedupeDebug', true)) console.error('[feedDedupe] loaded');
 
+  // Debug badge, bottom left. CSSOM setters and textContent only: the TV page blocks inline style
+  // attributes and innerHTML (CSP, Trusted Types).
+  var badge = null;
+  function showBadge(text) {
+    try {
+      if (!document.body) return;
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.style.position = 'fixed';
+        badge.style.left = '16px';
+        badge.style.bottom = '16px';
+        badge.style.zIndex = '2147483647';
+        badge.style.padding = '6px 12px';
+        badge.style.background = 'rgba(0,0,0,0.75)';
+        badge.style.color = '#7CFC00';
+        badge.style.font = '22px sans-serif';
+        badge.style.borderRadius = '8px';
+        document.body.appendChild(badge);
+      }
+      badge.textContent = text;
+    } catch (e) { /* purely cosmetic */ }
+  }
+
   // Only plain videos are deduplicated. Channels, playlists and Shorts have no stable id here.
   function videoId(item) {
     var tile = item && item.tileRenderer;
@@ -119,7 +142,9 @@ var e,t,i="function"==typeof Symbol?Symbol:{},n=i.iterator||"@@iterator",a=i.toS
       stats.responses++;
       // console.error because the Cobalt log on the Shield only reliably shows error level
       if (setting('feedDedupeDebug', true)) {
-        console.error('[feedDedupe] response ' + stats.responses + ' items=' + stats.items + ' withId=' + stats.withId + ' removedTotal=' + (stats.removed + removed));
+        var summary = 'dedupe: ' + stats.responses + ' feeds, ' + stats.items + ' items, ' + stats.withId + ' with id, ' + (stats.removed + removed) + ' removed';
+        console.error('[feedDedupe] ' + summary);
+        showBadge(summary);
       }
     }
     if (removed > 0) {
